@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CourseHub — Annales & supports de cours</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#f6f7fb; --surface:#ffffff; --text:#0f172a; --muted:#6b7280; --faint:#9ca3af; --border:#e8eaf0; --accent:#4f46e5; --radius:18px; --shadow-sm:0 1px 2px rgba(16,24,40,.05); }
+  *,*::before,*::after{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  body::before{ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none; background: radial-gradient(55vw 55vw at 8% -14%, #e0e7ff 0%, transparent 62%), radial-gradient(45vw 45vw at 100% -8%, #fae8ff 0%, transparent 58%); }
+  .muted{color:var(--muted)}
+  header{ position:sticky;top:0;z-index:30; background:rgba(255,255,255,.78); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+  .header-inner{ max-width:1120px;margin:0 auto;padding:13px 24px; display:flex;align-items:center;gap:13px; }
+  .logo{ width:38px;height:38px;border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6 55%,#d946ef); display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px; }
+  .brand{font-weight:800;font-size:15.5px;} .tagline{font-size:11.5px;color:var(--faint);}
+  .spacer{flex:1}
+  .ghost-btn{ font:inherit;font-size:13px;font-weight:600;color:#374151; background:#fff;border:1px solid var(--border);border-radius:10px; padding:9px 14px;cursor:pointer; }
+  .ghost-btn[hidden]{display:none}
+  main{max-width:1120px;margin:0 auto;padding:30px 24px 90px}
+  
+  /* Stepper */
+  .stepper{display:flex;align-items:center;gap:10px;margin-bottom:30px;flex-wrap:wrap}
+  .step{ display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600; color:var(--faint);padding:7px 15px 7px 8px;border-radius:999px; background:#fff;border:1px solid var(--border); }
+  .step .dot{ width:22px;height:22px;border-radius:50%;display:grid;place-items:center; font-size:11.5px;font-weight:700;background:#f3f4f6;color:var(--faint); }
+  .step.active{color:var(--text);border-color:#c7d2fe;} .step.active .dot{background:var(--accent);color:#fff}
+  .step.done{color:var(--accent);border-color:#c7d2fe;background:#eef2ff} .step.done .dot{background:var(--accent);color:#fff}
+  
+  /* Cards */
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:16px}
+  .spec-card{ padding:22px;border-radius:var(--radius);border:1px solid var(--border); background:#fff;cursor:pointer;display:flex;flex-direction:column;gap:9px; text-align:left; }
+  .spec-card:hover{border-color:var(--accent);box-shadow:0 10px 20px -10px rgba(79,70,229,0.2)}
+  .spec-icon{ width:46px;height:46px;border-radius:14px;display:grid;place-items:center; background:var(--accent);color:#fff;font-size:20px;font-weight:700; }
+  .spec-name{font-size:16px;font-weight:700;}
+  
+  .sem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+  .sem-card{ padding:18px;border-radius:16px;border:1px solid var(--border);background:#fff;cursor:pointer;text-align:left; }
+  .sem-card:hover{border-color:var(--accent)}
+  .s-label{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .s-name{font-size:17px;font-weight:700;}
+
+  /* Toolbar & Rows */
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 20px}
+  .search input{ padding:12px 14px;border-radius:13px;border:1px solid var(--border);font:inherit;outline:none;width:300px; }
+  .prof-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+  .prof-head{display:flex;align-items:center;gap:13px;padding:15px 18px;border-bottom:1px solid var(--border);background:#fbfcff}
+  .avatar{width:41px;height:41px;border-radius:13px;display:grid;place-items:center;font-size:13px;font-weight:700;background:#e0e7ff;color:#4f46e5}
+  .prof-info h3{margin:0;font-size:14.5px;font-weight:700;}
+  .module-tag{font-size:11.5px;font-weight:600;color:#4b5563;background:#f3f4f6;padding:2px 8px;border-radius:6px;}
+  .pdf-head,.pdf-row{display:grid;grid-template-columns:minmax(0,1fr) 62px 82px 130px 128px;gap:12px;align-items:center;padding:12px 18px}
+  .pdf-head{font-size:10.5px;text-transform:uppercase;font-weight:700;color:var(--faint);background:#fcfcfe;border-bottom:1px solid var(--border);}
+  .pdf-row{border-bottom:1px solid #f4f5f9;} .pdf-row:hover{background:#fafbff}
+  .file-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:9px;font-weight:800;}
+  .doc-title{font-size:14px;font-weight:600;}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:6px;}
+  .dl{font-size:12.5px;font-weight:600;color:#374151;padding:8px 13px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;text-decoration:none;display:inline-block}
+  .dl:hover{background:var(--accent);color:#fff;}
+  .empty{text-align:center;padding:64px;color:var(--muted);}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">CH</div>
+    <div><div class="brand">CourseHub</div><div class="tagline">Annales, TD, TP & supports</div></div>
+    <div class="spacer"></div>
+    <button class="ghost-btn" id="restartBtn" hidden>Recommencer</button>
+  </div>
+</header>
+
+<main>
+  <div class="stepper" id="stepper"></div>
+  <section id="app"></section>
+</main>
+
+<script>
+const API_BASE = 'http://localhost:8000/v1/api';
+const state = { step:1, specId:null, semId:null };
+const app = document.getElementById('app');
+
+const TYPES = {
+  exam_norm: { label:"Examen",     color:"#dc2626", bg:"#fef2f2" },
+  exam_ratt: { label:"Rattrapage", color:"#ea580c", bg:"#fff7ed" },
+  td:        { label:"TD",         color:"#2563eb", bg:"#eff6ff" },
+  tp:        { label:"TP",         color:"#0d9488", bg:"#f0fdfa" },
+  course:    { label:"Cours",      color:"#16a34a", bg:"#f0fdf4" },
+  corrige:   { label:"Corrigé",    color:"#7c3aed", bg:"#f5f3ff" },
+  controle:  { label:"Contrôle",   color:"#db2777", bg:"#fdf2f8" }
+};
+
+// Utilities
+const esc = str => String(str).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const formatSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+const initials = name => name.replace(/^Pr\.\s*/,'').split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase();
+
+function renderStepper() {
+    const steps = ["Spécialité", "Semestre", "Documents"];
+    document.getElementById('stepper').innerHTML = steps.map((l, i) => {
+        const n = i + 1;
+        const cls = state.step === n ? 'active' : state.step > n ? 'done' : '';
+        return `<div class="step ${cls}"><span class="dot">${state.step > n ? '✓' : n}</span>${l}</div>`;
+    }).join('<span class="sep"></span>');
+    document.getElementById('restartBtn').hidden = state.step === 1;
+}
+
+// STEP 1: Fetch Specialities
+async function renderSpecialties() {
+    app.innerHTML = `<div class="page-head"><h1>Quelle est votre spécialité ?</h1></div><div class="card-grid" id="specList"></div>`;
+    const res = await fetch(`${API_BASE}/views/specialities`);
+    const specs = await res.json();
+    
+    document.getElementById('specList').innerHTML = specs.map(s => `
+        <button class="spec-card" onclick="selectSpec(${s.id})">
+            <span class="spec-icon">${s.name.charAt(0)}</span>
+            <span class="spec-name">${s.name}</span>
+        </button>
+    `).join('');
+}
+
+function selectSpec(id) {
+    state.specId = id; state.step = 2; render();
+}
+
+// STEP 2: Semester Selection
+function renderSemesters() {
+    app.innerHTML = `
+        <div class="page-head">
+            <button class="ghost-btn" style="margin-bottom:20px" onclick="state.step=1; render()">← Retour</button>
+            <h1>Quel semestre vous intéresse ?</h1>
+        </div>
+        <div class="sem-grid">
+            ${[1,2,3,4,5,6].map(sem => `
+                <button class="sem-card" onclick="selectSem(${sem})">
+                    <span class="s-label">Semestre</span>
+                    <span class="s-name">Semestre ${sem}</span>
+                </button>
+            `).join('')}
+        </div>
+    `;
+}
+
+function selectSem(sem) {
+    state.semId = sem; state.step = 3; render();
+}
+
+// STEP 3: Fetch Documents
+async function renderDocuments() {
+    app.innerHTML = `<div class="page-head"><button class="ghost-btn" onclick="state.step=2; render()">← Retour</button><h1>Chargement...</h1></div>`;
+    
+    try {
+        const res = await fetch(`${API_BASE}/views/documents?speciality_id=${state.specId}&semester=${state.semId}`);
+        const groups = await res.json();
+        
+        if (groups.length === 0) {
+            app.innerHTML = `
+                <div class="page-head"><button class="ghost-btn" onclick="state.step=2; render()">← Retour</button></div>
+                <div class="empty">📄 Aucun document trouvé pour ce semestre.</div>`;
+            return;
+        }
+
+        app.innerHTML = `
+            <div class="page-head">
+                <button class="ghost-btn" onclick="state.step=2; render()">← Retour</button>
+                <h1>Documents disponibles</h1>
+            </div>
+            ${groups.map((p, i) => `
+                <div class="prof-card">
+                    <div class="prof-head">
+                        <div class="avatar">${initials(p.professor_name)}</div>
+                        <div class="prof-info">
+                            <h3>${esc(p.professor_name)}</h3>
+                            <span class="module-tag">${esc(p.module_name)}</span>
+                        </div>
+                    </div>
+                    <div class="pdf-head">
+                        <span>Document</span><span>Pages</span><span>Taille</span><span>Type</span><span></span>
+                    </div>
+                    ${p.pdfs.map(d => {
+                        const t = TYPES[d.type] || TYPES.course;
+                        return `
+                        <div class="pdf-row">
+                            <div class="doc-cell" style="display:flex;align-items:center;gap:11px">
+                                <span class="file-icon" style="background:${t.bg};color:${t.color}">PDF</span>
+                                <div class="doc-title">${esc(d.title)}</div>
+                            </div>
+                            <div class="cell">${d.number_of_pages}</div>
+                            <div class="cell">${formatSize(d.file_size)}</div>
+                            <div class="cell"><span class="badge" style="background:${t.bg};color:${t.color}">${t.label}</span></div>
+                            <div class="cell action">
+                                <a href="${API_BASE}/views/documents/${d.id}/download" target="_blank" class="dl">↓ Télécharger</a>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `).join('')}
+        `;
+    } catch (err) {
+        app.innerHTML = `<div class="empty">Erreur de connexion au serveur.</div>`;
+    }
+}
+
+// Main Render Controller
+function render() {
+    renderStepper();
+    if (state.step === 1) renderSpecialties();
+    else if (state.step === 2) renderSemesters();
+    else renderDocuments();
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+    state.step = 1; state.specId = null; state.semId = null; render();
+});
+
+// Start
+render();
+</script>
+</body>
+</html>
+

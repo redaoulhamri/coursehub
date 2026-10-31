@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CourseHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; }
+        body { display: flex; min-height: 100vh; background: #f8fafc; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: #111827; color: #fff; padding: 20px; display: flex; flex-direction: column; }
+        .brand { font-size: 20px; font-weight: 700; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .nav-item { padding: 12px 16px; border-radius: 8px; color: #9ca3af; cursor: pointer; margin-bottom: 8px; transition: 0.2s; font-weight: 500; font-size: 14px; }
+        .nav-item:hover, .nav-item.active { background: #1f2937; color: #fff; }
+        .logout-btn { margin-top: auto; background: #dc2626; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        
+        /* Main Content */
+        .main { flex: 1; padding: 40px; overflow-y: auto; }
+        .section { display: none; }
+        .section.active { display: block; }
+        h1 { margin-bottom: 24px; color: #1f2937; font-size: 24px; font-weight: 700; }
+        
+        /* Cards & Forms */
+        .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        .form-row { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px; }
+        label { font-size: 12px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em; }
+        input, select { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; outline: none; }
+        input:focus, select:focus { border-color: #4f46e5; }
+        
+        /* Buttons */
+        button.primary { background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; height: 40px; transition: 0.2s; }
+        button.primary:hover { background: #4338ca; }
+        button.danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        button.danger:hover { background: #fca5a5; color: white; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; vertical-align: middle; }
+        th { color: #6b7280; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; background: #f9fafb; }
+        tr:hover { background: #f9fafb; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="brand">🛡️ CourseHub</div>
+        <div class="nav-item active" data-target="tab-documents">Documents</div>
+        <div class="nav-item" data-target="tab-professors">Professors</div>
+        <div class="nav-item" data-target="tab-specialities">Specialities</div>
+        <div class="nav-item" data-target="tab-modules">Modules</div>
+        <div class="nav-item" data-target="tab-links">Speciality - Modules</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        
+        <!-- ==================== DOCUMENTS ==================== -->
+        <div id="tab-documents" class="section active">
+            <h1>Manage Documents</h1>
+            
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">Upload New Document</h3>
+                <form id="docForm">
+                    <div class="form-row">
+                        <div class="form-group"><label>Title</label><input type="text" name="title" required></div>
+                        <div class="form-group"><label>Pages</label><input type="number" name="number_of_pages" required></div>
+                        <div class="form-group"><label>Semester (1-6)</label><input type="number" name="semester" min="1" max="6" required></div>
+                        <div class="form-group"><label>Year (YYYY-YYYY)</label><input type="text" name="school_year" maxlength="9" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="type" required>
+                                <option value="exam_norm">Exam Normal</option>
+                                <option value="exam_ratt">Exam Rattrapage</option>
+                                <option value="td">TD</option>
+                                <option value="tp">TP</option>
+                                <option value="course">Course</option>
+                                <option value="corrige">Corrigé</option>
+                                <option value="controle">Contrôle</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Professor ID</label><input type="number" name="professor_id" required></div>
+                        <div class="form-group"><label>SpecialityModule ID</label><input type="number" name="speciality_module_id" required></div>
+                        <div class="form-group"><label>Alt Text</label><input type="text" name="alt" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>PDF File</label><input type="file" name="file" accept=".pdf" required></div>
+                        <button type="submit" class="primary">Upload Document</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <table id="docsTable">
+                    <thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Semester</th><th>Downloads</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== PROFESSORS ==================== -->
+        <div id="tab-professors" class="section">
+            <h1>Manage Professors</h1>
+            
+            <div class="card">
+                <form id="profForm">
+                    <div class="form-row">
+                        <div class="form-group"><label>First Name</label><input type="text" name="first_name" required></div>
+                        <div class="form-group"><label>Last Name</label><input type="text" name="last_name" required></div>
+                        <button type="submit" class="primary">Add Professor</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <table id="profTable">
+                    <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== SPECIALITIES ==================== -->
+        <div id="tab-specialities" class="section">
+            <h1>Manage Specialities</h1>
+            
+            <div class="card">
+                <form id="specForm">
+                    <div class="form-row">
+                        <div class="form-group"><label>Speciality Name</label><input type="text" name="name" required></div>
+                        <button type="submit" class="primary">Add Speciality</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <table id="specTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== MODULES ==================== -->
+        <div id="tab-modules" class="section">
+            <h1>Manage Modules</h1>
+            
+            <div class="card">
+                <form id="modForm">
+                    <div class="form-row">
+                        <div class="form-group"><label>Module Name</label><input type="text" name="name" required></div>
+                        <button type="submit" class="primary">Add Module</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <table id="modTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== LINKS (Speciality-Modules) ==================== -->
+        <div id="tab-links" class="section">
+            <h1>Link Modules to Specialities</h1>
+            
+            <div class="card">
+                <form id="linkForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Speciality</label>
+                            <select name="speciality_id" id="selectSpec" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Module</label>
+                            <select name="module_id" id="selectMod" required></select>
+                        </div>
+                        <button type="submit" class="primary">Link Module</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <table id="linkTable">
+                    <thead><tr><th>ID</th><th>Speciality</th><th>Module</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/v1/api';
+        const token = localStorage.getItem('admin_token');
+
+        if (!token) window.location.href = 'login.html';
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            window.location.href = 'login.html';
+        }
+
+        // --- Navigation ---
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                item.classList.add('active');
+                document.getElementById(item.dataset.target).classList.add('active');
+                
+                // Refresh data when switching tabs
+                if(item.dataset.target === 'tab-documents') loadDocuments();
+                if(item.dataset.target === 'tab-professors') loadProfessors();
+                if(item.dataset.target === 'tab-specialities') loadSpecialities();
+                if(item.dataset.target === 'tab-modules') loadModules();
+                if(item.dataset.target === 'tab-links') { loadSpecialities(); loadModules(); loadLinks(); }
+            });
+        });
+
+        // ==================== API HELPER ====================
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const headers = { 'Authorization': `Bearer ${token}` };
+            if (body && method !== 'POST' || (body && !(body instanceof FormData))) {
+                headers['Content-Type'] = 'application/json';
+            }
+
+            const options = { method, headers };
+            if (body) {
+                options.body = body instanceof FormData ? body : JSON.stringify(body);
+            }
+
+            const res = await fetch(`${API_BASE}${endpoint}`, options);
+            
+            if (res.status === 401) return logout();
+            if (res.status === 204) return null; 
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "API Error");
+            return data;
+        }
+
+        // ==================== DOCUMENTS ====================
+        async function loadDocuments() {
+            try {
+                const docs = await apiCall('/admin/documents/');
+                const tbody = document.querySelector('#docsTable tbody');
+                tbody.innerHTML = docs.map(doc => `
+                    <tr>
+                        <td>${doc.id}</td>
+                        <td>${doc.title}</td>
+                        <td><span style="background:#e0e7ff;color:#4338ca;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${doc.type}</span></td>
+                        <td>S${doc.semester}</td>
+                        <td>${doc.download_count}</td>
+                        <td><button class="danger" onclick="deleteDocument(${doc.id})">Delete</button></td>
+                    </tr>
+                `).join('');
+            } catch (err) { alert(err.message); }
+        }
+
+        document.getElementById('docForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = 'Uploading...';
+            const formData = new FormData(e.target);
+            
+            try {
+                await apiCall('/admin/documents/', 'POST', formData);
+                alert('Document uploaded successfully!');
+                e.target.reset();
+                loadDocuments();
+            } catch (err) { alert(err.message); } 
+            finally { btn.textContent = 'Upload Document'; }
+        });
+
+        async function deleteDocument(id) {
+            if (!confirm("Are you sure you want to delete this document?")) return;
+            try {
+                await apiCall(`/admin/documents/${id}`, 'DELETE');
+                loadDocuments();
+            } catch (err) { alert(err.message); }
+        }
+
+        // ==================== PROFESSORS ====================
+        async function loadProfessors() {
+            try {
+                const profs = await apiCall('/admin/professors/');
+                const tbody = document.querySelector('#profTable tbody');
+                tbody.innerHTML = profs.map(p => `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.first_name}</td>
+                        <td>${p.last_name}</td>
+                        <td><button class="danger" onclick="deleteProfessor(${p.id})">Delete</button></td>
+                    </tr>
+                `).join('');
+            } catch (err) { alert(err.message); }
+        }
+
+        document.getElementById('profForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            try {
+                await apiCall('/admin/professors/', 'POST', data);
+                e.target.reset();
+                loadProfessors();
+            } catch (err) { alert(err.message); }
+        });
+
+        async function deleteProfessor(id) {
+            if (!confirm("Delete professor? This might fail if they have documents.")) return;
+            try {
+                await apiCall(`/admin/professors/${id}`, 'DELETE');
+                loadProfessors();
+            } catch (err) { alert(err.message); }
+        }
+
+        // ==================== SPECIALITIES ====================
+        async function loadSpecialities() {
+            try {
+                const specs = await apiCall('/admin/catalog/specialities');
+                const tbody = document.querySelector('#specTable tbody');
+                tbody.innerHTML = specs.map(s => `
+                    <tr>
+                        <td>${s.id}</td>
+                        <td>${s.name}</td>
+                        <td><button class="danger" onclick="deleteSpeciality(${s.id})">Delete</button></td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('selectSpec').innerHTML = specs.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            } catch (err) { alert(err.message); }
+        }
+
+        document.getElementById('specForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            try {
+                await apiCall('/admin/catalog/specialities', 'POST', data);
+                e.target.reset();
+                loadSpecialities();
+            } catch (err) { alert(err.message); }
+        });
+
+        async function deleteSpeciality(id) {
+            if (!confirm("Delete speciality?")) return;
+            try {
+                await apiCall(`/admin/catalog/specialities/${id}`, 'DELETE');
+                loadSpecialities();
+            } catch (err) { alert(err.message); }
+        }
+
+        // ==================== MODULES ====================
+        async function loadModules() {
+            try {
+                const mods = await apiCall('/admin/catalog/modules');
+                const tbody = document.querySelector('#modTable tbody');
+                tbody.innerHTML = mods.map(m => `
+                    <tr>
+                        <td>${m.id}</td>
+                        <td>${m.name}</td>
+                        <td><button class="danger" onclick="deleteModule(${m.id})">Delete</button></td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('selectMod').innerHTML = mods.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            } catch (err) { alert(err.message); }
+        }
+
+        document.getElementById('modForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            try {
+                await apiCall('/admin/catalog/modules', 'POST', data);
+                e.target.reset();
+                loadModules();
+            } catch (err) { alert(err.message); }
+        });
+
+        async function deleteModule(id) {
+            if (!confirm("Delete module?")) return;
+            try {
+                await apiCall(`/admin/catalog/modules/${id}`, 'DELETE');
+                loadModules();
+            } catch (err) { alert(err.message); }
+        }
+
+        // ==================== LINKS (Speciality-Modules) ====================
+        async function loadLinks() {
+            try {
+                const links = await apiCall('/admin/catalog/speciality-modules');
+                const specs = await apiCall('/admin/catalog/specialities');
+                const mods = await apiCall('/admin/catalog/modules');
+
+                const getSpecName = (id) => specs.find(s => s.id === id)?.name || id;
+                const getModName = (id) => mods.find(m => m.id === id)?.name || id;
+
+                const tbody = document.querySelector('#linkTable tbody');
+                tbody.innerHTML = links.map(l => `
+                    <tr>
+                        <td>${l.id}</td>
+                        <td>${getSpecName(l.speciality_id)}</td>
+                        <td>${getModName(l.module_id)}</td>
+                        <td><button class="danger" onclick="deleteLink(${l.id})">Unlink</button></td>
+                    </tr>
+                `).join('');
+            } catch (err) { alert(err.message); }
+        }
+
+        document.getElementById('linkForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.speciality_id = parseInt(data.speciality_id);
+            data.module_id = parseInt(data.module_id);
+            
+            try {
+                await apiCall('/admin/catalog/speciality-modules', 'POST', data);
+                loadLinks();
+            } catch (err) { alert(err.message); }
+        });
+
+        async function deleteLink(id) {
+            if (!confirm("Unlink this module from the speciality?")) return;
+            try {
+                await apiCall(`/admin/catalog/speciality-modules/${id}`, 'DELETE');
+                loadLinks();
+            } catch (err) { alert(err.message); }
+        }
+
+        loadDocuments();
+    </script>
+</body>
+</html>
+
